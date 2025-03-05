@@ -1,3 +1,21 @@
+---
+title: "Lab 4: Lab 4: Importing NOAA Buoy Data from Monterey Bay"
+author: "Michael Torrisi"
+date: today
+format: html
+execute: 
+  echo: true
+  error: true
+  embed-resources: true
+code-tools: true
+toc: true
+theme: default
+fontcolor: black
+linkcolor: blue
+monobackgroundcolor: rgb(199, 221, 235)
+---
+
+
 # Part 1: Setup
 
 ## GitHub Workflow
@@ -22,7 +40,7 @@ Part of learning to program is learning from a variety of resources. Thus, I exp
 
 -   If you used Google, you are expected to "inform" me of any resources you used by **pasting the link to the resource in a code comment next to where you used that resource**.
 
--   If you used ChatGPT, you are expected to "inform" me of the assistance you received by (1) indicating somewhere in the problem that you used ChatGPT (e.g., below the question prompt or as a code comment), and (2) downloading and including the `.txt` file containing your **entire** conversation with ChatGPT in your repository. ChatGPT can we used as a "search engine", but you should not copy and paste prompts from the lab or the code into your lab.
+-   If you used ChatGPT, you are expected to "inform" me of the assistance you received by (1) indicating somewhere in the problem that you used ChatGPT (e.g., below the question prompt or as a code comment), and (2) downloading and including the `.txt` file containing your **entire** conversation with ChatGPT in your repository. ChatGPT can be used as a "search engine", but you should not copy and paste prompts from the lab or the code into your lab.
 
 Additionally, you are permitted and encouraged to work with your peers as you complete lab assignments, but **you are expected to do your own work**. Copying from each other is cheating, and letting people copy from you is also cheating. Please don't do either of those things.
 
@@ -38,7 +56,8 @@ In the code chunk below, load in the packages necessary for your analysis. You s
 
 ```{r}
 #| label: setup
-
+library(tidyverse)
+library(janitor)
 ```
 
 # Part 2: Data Context
@@ -68,7 +87,8 @@ When you read in the data give it an appropriate name for what the data represen
 
 ```{r}
 #| label: load-data
-
+#| eval: false
+buoy_2024 <- read_table("data-raw/buoy_2024.txt", col_names = TRUE)
 ```
 
 Notice that the data is all read in as a character value and the first row contains information that is not data, but additional information about the variables: this is called a "comment" in the data.  
@@ -78,7 +98,8 @@ In your data, you will notice the `#` in front of `yr` in the second row. That i
 
 ```{r}
 #| label: load-data-comment
-
+#| eval: false
+buoy_2024 <- read_table("data-raw/buoy_2024.txt", col_names = TRUE, comment = "#")
 ```
 
 
@@ -87,7 +108,8 @@ We want to use snake_case for our variable names. Use the `janitor` package to c
 
 ```{r}
 #| label: clean-names
-
+#| eval: false
+buoy_2024 <- clean_names(buoy_2024)
 ```
 
 ## Step 4: Write the Data Part 1
@@ -97,7 +119,8 @@ Write the data to a `csv` file called `buoy_update.csv`. Be sure to write it to 
 
 ```{r}
 #| label: write-data-part-1
-
+#| eval: false
+write_csv(buoy_2024, file = "data-raw/buoy_2024.csv")
 ```
 
 
@@ -112,7 +135,8 @@ Remember that now we are reading back in a data file of type `csv`. Now when you
 
 ```{r}
 #| label: load-data-again
-
+#| eval: false
+buoy_2024_csv <- read_csv("data-raw/buoy_2024.csv", col_names = TRUE, col_types = cols(.default = col_character()), na = c("99", "999"))
 ```
 
 This is great! But we created another problem. Now all of our numeric values are being treated like characters and we don't want that. There are a couple of ways to fix this. We can write and reread in the data setting the column types to `double` or we can use the `readr` parsing functions. 
@@ -121,7 +145,8 @@ Here is the code you can use to fix the data without exporting and importing aga
 
 ```{r}
 #| label: parse-double
-buoy_final <- your_file_name |> 
+#| eval: false
+buoy_final <- buoy_2024_csv |> 
   mutate(across(.cols = everything(), ~parse_double(.x)))
 ```
 
@@ -133,11 +158,26 @@ Now we have our clean, correctly classified, data ready for analysis as `buoy_fi
 # Part 3: Recreate the Following Visualization
 Now that are data is "analytic ready", go ahead and read in your clean data and use it to try and recreate the following visualization. Do your best to match the following visualization as close as possible. (Hint: when specifying color, you may need to use `factor()` to get R to treat a continuous value as discrete).  
 
+
 ```{r}
 #| label: monterey-air-temp-viz
-
-
+ggplot(buoy_final) +
+  geom_point(mapping = aes(x = factor(mm), 
+                           y = atmp, 
+                           alpha = 0.1, 
+                           color = mm), 
+             position = position_jitter(width = 0.1, 
+                                        height = 0,
+                                        seed = 1),
+             show.legend = FALSE) +
+  geom_smooth(mapping = aes(x = mm,
+                            y = atmp))+
+  theme_light() +
+  labs(x = "Month in 2024",
+       y = "Air Temperature (Celcius)",
+       title = "Monterey Bay Canyon Air Temperature in 2024")
 ```
+
 
 # Part 4: Find a Data Set
 
