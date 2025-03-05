@@ -192,9 +192,9 @@ One fun source for data is [Tidy Tuesday](https://github.com/rfordatascience/tid
 
 **For your found data write a brief description of the data and and provide its source.**
 
->Insert your description and link to your source here. Identify 2-3 research questions you could try to answer with this data.  
+> [iNaturalist Data File](https://drive.google.com/drive/u/1/folders/13pADxrMoK3si7utGMS7sfoY-Z0kAPDb9)
 
-
+> This data is a snapshot from iNaturalist that I downloaded last semester for a class project. It shows the research-grade submissions to iNaturalist for the great horned owl, and includes the time and date of the observation, as well as latitude and longitude location data. The source link goes to a Google Drive .csv file containing the data.
 
 
 # Lab 4 Submission
