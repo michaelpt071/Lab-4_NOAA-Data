@@ -6,6 +6,8 @@ format: html
 execute: 
   echo: true
   error: true
+  warning: false
+  message: false
   embed-resources: true
 code-tools: true
 toc: true
@@ -87,7 +89,6 @@ When you read in the data give it an appropriate name for what the data represen
 
 ```{r}
 #| label: load-data
-#| eval: false
 buoy_2024 <- read_table("data-raw/buoy_2024.txt", col_names = TRUE)
 ```
 
@@ -98,7 +99,6 @@ In your data, you will notice the `#` in front of `yr` in the second row. That i
 
 ```{r}
 #| label: load-data-comment
-#| eval: false
 buoy_2024 <- read_table("data-raw/buoy_2024.txt", col_names = TRUE, comment = "#")
 ```
 
@@ -108,7 +108,6 @@ We want to use snake_case for our variable names. Use the `janitor` package to c
 
 ```{r}
 #| label: clean-names
-#| eval: false
 buoy_2024 <- clean_names(buoy_2024)
 ```
 
@@ -119,7 +118,6 @@ Write the data to a `csv` file called `buoy_update.csv`. Be sure to write it to 
 
 ```{r}
 #| label: write-data-part-1
-#| eval: false
 write_csv(buoy_2024, file = "data-raw/buoy_2024.csv")
 ```
 
@@ -135,7 +133,6 @@ Remember that now we are reading back in a data file of type `csv`. Now when you
 
 ```{r}
 #| label: load-data-again
-#| eval: false
 buoy_2024_csv <- read_csv("data-raw/buoy_2024.csv", col_names = TRUE, col_types = cols(.default = col_character()), na = c("99", "999"))
 ```
 
@@ -145,7 +142,6 @@ Here is the code you can use to fix the data without exporting and importing aga
 
 ```{r}
 #| label: parse-double
-#| eval: false
 buoy_final <- buoy_2024_csv |> 
   mutate(across(.cols = everything(), ~parse_double(.x)))
 ```
@@ -154,6 +150,12 @@ buoy_final <- buoy_2024_csv |>
 
 Now we have our clean, correctly classified, data ready for analysis as `buoy_final`. Go ahead and write that data as a `csv` file into your `data-clean` file. Once you've done that. Set the data cleaning code chunks to `eval: false` so that you do not rerun them again when you render the document. 
 
+```{r}
+#| label: write-data-part-2
+write_csv(buoy_final, file = "data-clean/buoy_final.csv")
+```
+
+
 
 # Part 3: Recreate the Following Visualization
 Now that are data is "analytic ready", go ahead and read in your clean data and use it to try and recreate the following visualization. Do your best to match the following visualization as close as possible. (Hint: when specifying color, you may need to use `factor()` to get R to treat a continuous value as discrete).  
@@ -161,21 +163,25 @@ Now that are data is "analytic ready", go ahead and read in your clean data and 
 
 ```{r}
 #| label: monterey-air-temp-viz
+#| message: false
+#| echo: true
 ggplot(buoy_final) +
   geom_point(mapping = aes(x = factor(mm), 
-                           y = atmp, 
-                           alpha = 0.1, 
-                           color = mm), 
+                           y = atmp,
+                           color = factor(mm)),
+             alpha = 0.1,
              position = position_jitter(width = 0.1, 
                                         height = 0,
                                         seed = 1),
              show.legend = FALSE) +
   geom_smooth(mapping = aes(x = mm,
-                            y = atmp))+
+                            y = atmp),
+              color = "#000000")+
   theme_light() +
   labs(x = "Month in 2024",
        y = "Air Temperature (Celcius)",
-       title = "Monterey Bay Canyon Air Temperature in 2024")
+       title = "Monterey Bay Canyon Air Temperature in 2024") +
+  scale_color_viridis_d() 
 ```
 
 
